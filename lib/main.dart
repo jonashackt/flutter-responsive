@@ -17,9 +17,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Responsive',
         theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 32, 48, 99))
-        ),
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+                seedColor: Color.fromARGB(255, 32, 48, 99))),
         home: MyHomePage(),
       ),
     );
@@ -33,6 +33,17 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners();
   }
+
+  var favorites = <WordPair>[];
+
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatelessWidget {
@@ -43,6 +54,13 @@ class MyHomePage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     var wordPair = appState.current;
 
+    IconData icon;
+    if (appState.favorites.contains(wordPair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
+
     return Scaffold(
       body: Center(
         child: Column(
@@ -52,14 +70,25 @@ class MyHomePage extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            Padding(
-              padding: const EdgeInsets.all(5),
-              child: ElevatedButton(
-                  onPressed: () {
-                    appState.getNext();
-                  },
-                  child: Text('Next!')),
-            )
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                    onPressed: () {
+                      appState.toggleFavorite();
+                    },
+                    icon: Icon(icon),
+                    label: Text("Like")),
+                SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      appState.getNext();
+                    },
+                    child: Text('Next!')),
+              ],
+            ),
           ],
         ),
       ),
@@ -79,9 +108,7 @@ class BigCard extends StatelessWidget {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     var style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-      fontWeight: FontWeight.w100
-    );
+        color: theme.colorScheme.onPrimary, fontWeight: FontWeight.w100);
 
     return Card(
       color: theme.colorScheme.primary,
@@ -97,6 +124,3 @@ class BigCard extends StatelessWidget {
     );
   }
 }
-
-
-
