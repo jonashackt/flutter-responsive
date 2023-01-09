@@ -44,11 +44,63 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void removeFavorite(WordPair wordPair) {
+    favorites.remove(wordPair);
+
+    notifyListeners();
+  }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  var selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = GeneratorPage();
+        break;
+      case 1:
+        page = FavoritesPage();
+        break;
+      default:
+        throw UnimplementedError('no Widget for $selectedIndex');
+    }
+
+    return Scaffold(
+      body: page,
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
+          )
+        ],
+        currentIndex: selectedIndex,
+        onTap: (value) {
+          setState(() {
+            selectedIndex = value;
+          });
+        },
+      ),
+    );
+  }
+}
+
+class GeneratorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -61,8 +113,8 @@ class MyHomePage extends StatelessWidget {
       icon = Icons.favorite_border;
     }
 
-    return Scaffold(
-      body: Center(
+    return SafeArea(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -120,6 +172,39 @@ class BigCard extends StatelessWidget {
           style: style,
           semanticsLabel: wordPair.asPascalCase,
         ),
+      ),
+    );
+  }
+}
+
+class FavoritesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+    var appState = context.watch<MyAppState>();
+
+    if (appState.favorites.isEmpty) {
+      return Center(
+        child: Text('No favorites yet!'),
+      );
+    }
+
+    return SafeArea(
+      child: Column(
+        children: [
+          AppBar(
+            leading: Icon(Icons.favorite_rounded),
+            foregroundColor: theme.colorScheme.primary,
+            title: Text('Your Favorites (${appState.favorites.length})'),
+          ),
+          for (var wordpair in appState.favorites)
+            ListTile(
+                leading: Icon(Icons.delete),
+                title: Text(wordpair.asLowerCase),
+                onTap: () {
+                  appState.removeFavorite(wordpair);
+                }),
+        ],
       ),
     );
   }

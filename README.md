@@ -6,4 +6,6 @@ Here's the lab:
 
 https://codelabs.developers.google.com/codelabs/flutter-codelab-first#5
 
-Currently I'm finished the `5 Make the app prettier` step.
+but optimized for iPhone instead of a web page - therefor using the `Scaffold` Widget's `bottomNavigationBar` instead of the proposed `NavigationRail`:
+
+![](screenshots/favorites-app.png)
